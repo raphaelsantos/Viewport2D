@@ -21,21 +21,29 @@
 
 		protected var _bmp:Bitmap;
 		protected var _bmd:BitmapData;
+		
+		protected var _transparent:Boolean;
+		protected var _backgroundColor:uint;
 
 		private var _interactive:Boolean;
 
 		private var _interactionContainer:Sprite;
 		private var _hasInteractionFocus:Boolean=false;
 
-		public function Viewport2D(width:Number, height:Number, camera:Camera2D, interactive:Boolean=false)
+		public function Viewport2D(width:Number, height:Number, camera:Camera2D, interactive:Boolean=false, transparent:Boolean = false)
 		{
-			setCamera(camera);
 			_width=width;
 			_height=height
+			
+			setCamera(camera);
+			
+			_transparent = transparent;
 			this.interactive=interactive;
+			
+			backgroundColor = 0x000000;
 
 
-			_bmd=new BitmapData(_width, _height, true, 0x00000000);
+			_bmd=new BitmapData(_width, _height, true, _backgroundColor);
 			_bmp=new Bitmap(_bmd);
 
 			addChild(_bmp);
@@ -51,7 +59,7 @@
 			m.tx=Math.round(m.tx);
 			m.ty=Math.round(m.ty);
 
-			_bmd.fillRect(_bmd.rect, 0x00000000);
+			_bmd.fillRect(_bmd.rect, _backgroundColor);
 			_bmd.draw(Sprite(_camera.getCanvas()), m);
 
 			if (_interactive && _hasInteractionFocus)
@@ -74,7 +82,7 @@
 
 			var interactionMask:Sprite=new Sprite();
 			addChild(interactionMask);
-			interactionMask.graphics.beginFill(0xFF0000);
+			interactionMask.graphics.beginFill(0x000000);
 			interactionMask.graphics.drawRect(0, 0, _width, _height);
 			interactionMask.graphics.endFill();
 			_interactionContainer.mask=interactionMask;
@@ -109,6 +117,28 @@
 		public function get interactive():Boolean
 		{
 			return _interactive;
+		}
+		
+		public function set transparent(value:Boolean):void
+		{
+			_transparent = value;
+			backgroundColor = _backgroundColor;
+		}
+		
+		public function get transparent():Boolean
+		{
+			return _transparent;
+		}
+		
+		public function set backgroundColor(value:uint):void
+		{
+			var alphaChannel:uint = _transparent? 0x00 : 0xFF;
+			_backgroundColor = alphaChannel <<24 | ( value & 0x00FFFFFF);
+		}
+		
+		public function get backgroundColor():uint
+		{
+			return _backgroundColor;	
 		}
 	}
 }
